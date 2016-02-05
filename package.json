@@ -1,0 +1,45 @@
+{
+  "author": "Tim Garthwaite <tim@mividstudios.com>",
+  "name": "mivid-stack",
+  "description": "Example Todo project in Riot and Redux with preprocessors",
+  "version": "0.1.0",
+  "homepage": "https://github.com/mividtim/mivid-stack",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mividtim/mivid-stack.git"
+  },
+  "engines": {
+    "node": "^5.4.0"
+  },
+  "scripts": {
+    "clean": "node_modules/gulp/bin/gulp.js clean",
+    "build": "node_modules/gulp/bin/gulp.js build",
+    "watch": "node_moudles/gulp/bin/gulp.js watch",
+    "start": "node_modules/gulp/bin/gulp.js start",
+    "db": "node_modules/gulp/bin/gulp.js db",
+    "app": "node_modules/gulp/bin/gulp.js app",
+    "live": "node_modules/gulp/bin/gulp.js live",
+    "dev": "node_modules/gulp/bin/gulp.js"
+  },
+  "dependencies": {
+    "browserify": "^13.0.0",
+    "jquery": "^2.2.0",
+    "lodash": "^4.2.1",
+    "redux": "^3.2.1",
+    "riot": "^2.3.15"
+  },
+  "devDependencies": {
+    "coffeeify": "^2.0.1",
+    "del": "^2.2.0",
+    "gulp": "git+https://git@github.com/gulpjs/gulp.git#4.0",
+    "gulp-coffee": "^2.3.1",
+    "gulp-jade": "^1.1.0",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-stylus": "^2.3.0",
+    "livereload": "^0.4.1",
+    "riotify": "^0.1.2",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0",
+    "watchify": "^3.7.0"
+  }
+}
