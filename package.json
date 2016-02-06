@@ -18,7 +18,7 @@
     "prod": "node node_modules/gulp/bin/gulp.js build",
     "heroku": "node node_modules/gulp/bin/gulp.js heroku",
     "watch": "node node_moudles/gulp/bin/gulp.js watch",
-    "startlocal": "node node_modules/gulp/bin/gulp.js start",
+    "start": "node service/app.js",
     "db": "node node_modules/gulp/bin/gulp.js db",
     "app": "node node_modules/gulp/bin/gulp.js app",
     "live": "node node_modules/gulp/bin/gulp.js live",

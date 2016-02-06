@@ -27,7 +27,7 @@ paths =
   serviceDestination: "./build/service"
   serviceScripts: "./src/service/**/*.coffee"
   serviceEntry: "./build/service/app.js"
-  heroku: "./heroku"
+  heroku: "./heroku/**/*"
 
 browserifyOpts =
   entries: paths.clientScripts,
