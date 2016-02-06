@@ -12,20 +12,23 @@
     "node": "^5.4.0"
   },
   "scripts": {
-    "clean": "node_modules/gulp/bin/gulp.js clean",
-    "build": "node_modules/gulp/bin/gulp.js build",
-    "prod": "node_modules/gulp/bin/gulp.js build",
-    "watch": "node_moudles/gulp/bin/gulp.js watch",
-    "start": "node_modules/gulp/bin/gulp.js start",
-    "db": "node_modules/gulp/bin/gulp.js db",
-    "app": "node_modules/gulp/bin/gulp.js app",
-    "live": "node_modules/gulp/bin/gulp.js live",
-    "dev": "node_modules/gulp/bin/gulp.js"
+    "clean": "node node_modules/gulp/bin/gulp.js clean",
+    "build": "node node_modules/gulp/bin/gulp.js build",
+    "rebuild": "node node_modules/gulp/bin/gulp.js rebuild",
+    "prod": "node node_modules/gulp/bin/gulp.js build",
+    "watch": "node node_moudles/gulp/bin/gulp.js watch",
+    "start": "node node_modules/gulp/bin/gulp.js start",
+    "db": "node node_modules/gulp/bin/gulp.js db",
+    "app": "node node_modules/gulp/bin/gulp.js app",
+    "live": "node node_modules/gulp/bin/gulp.js live",
+    "dev": "node node_modules/gulp/bin/gulp.js"
   },
   "dependencies": {
     "browserify": "^13.0.0",
+    "express": "^4.13.4",
     "jquery": "^2.2.0",
     "lodash": "^4.2.1",
+    "nodemon": "^1.8.1",
     "redux": "^3.2.1",
     "riot": "^2.3.15"
   },
