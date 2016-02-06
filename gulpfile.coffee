@@ -27,6 +27,7 @@ paths =
   serviceDestination: "./build/service"
   serviceScripts: "./src/service/**/*.coffee"
   serviceEntry: "./build/service/app.js"
+  heroku: "./heroku"
 
 browserifyOpts =
   entries: paths.clientScripts,
@@ -116,6 +117,13 @@ prod = gulp.parallel(
   buildClientStyles,
   buildClientTemplatesProd)
 
+copyHeroku = ->
+  gulp.src paths.heroku
+    .pipe gulp.dest paths.destination
+
+heroku = gulp.series clean, prod, copyHeroku, ->
+  run "git", ["push", "heroku", "master"]
+
 watchClientScripts = -> buildClientScripts yes
 
 watchOthers = ->
@@ -151,6 +159,7 @@ gulp.task "prod", prod
 gulp.task "watch", watch
 gulp.task "start", start
 gulp.task "prod", startProd
+gulp.task "heroku", heroku
 gulp.task "db", startDB
 gulp.task "app", startApp
 gulp.task "live", liveReload
