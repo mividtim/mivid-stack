@@ -98,7 +98,7 @@ buildClientTemplates = ->
 buildClientTemplatesProd = ->
   gulp.src paths.clientTemplates
     .pipe sourcemaps.init loadMaps: yes
-    .pipe jade pretty: yes
+    .pipe jade()
     .pipe sourcemaps.write "."
 
 build = gulp.parallel(
