@@ -25,4 +25,4 @@ SubscribeMixin =
 
 riot.mixin "context", ContextMixin
 riot.mixin "subscribe", SubscribeMixin
-riot.mount tag, store: Redux.createStore reducer
+riot.mount tag, store: Redux.createStore reducer, undefined, if window?.devToolsExtension? then window.devToolsExtension() else undefined
