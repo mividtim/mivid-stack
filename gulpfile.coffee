@@ -121,8 +121,12 @@ copyHeroku = ->
   gulp.src paths.heroku
     .pipe gulp.dest paths.destination
 
-heroku = gulp.series clean, prod, copyHeroku, ->
-  run "git", ["push", "heroku", "master"]
+heroku = gulp.series clean, prod, copyHeroku,
+  -> run "cd", ["build"]
+  -> run "git", ["init"]
+  -> run "git", ["add", "."]
+  -> run "git", ["commit", "-m", "deploy"]
+  -> run "git", ["push", "heroku"]
 
 watchClientScripts = -> buildClientScripts yes
 
