@@ -1,9 +1,9 @@
-assign = require "lodash.assign"
 browserify = require "browserify"
 buffer = require "vinyl-buffer"
 coffeeify = require "coffeeify"
 del = require "del"
 gulp = require "gulp"
+inject = require "gulp-inject-string"
 jade = require "gulp-jade"
 livereload = require "livereload"
 process = require "process"
@@ -28,7 +28,7 @@ paths =
 browserifyOpts =
   entries: paths.clientScripts,
   debug: yes
-browserifyOpts = assign {}, watchify.args, browserifyOpts
+browserifyOpts = Object.assign {}, watchify.args, browserifyOpts
 
 run = (command, args, cwd = ".") ->
   runningCommand = spawn command, args, cwd: cwd
@@ -70,13 +70,21 @@ buildStyles = ->
     .pipe stylus()
     .pipe sourcemaps.write "."
     .pipe gulp.dest paths.build
+    .pipe gulp.dest paths.build
 buildTemplates = ->
   gulp.src paths.templates
     .pipe sourcemaps.init()
     .pipe jade pretty: yes
+    .pipe inject.append "<script>document.write('<script src=\"http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1\"></' + 'script>')</script>"
     .pipe sourcemaps.write "."
     .pipe gulp.dest paths.build
+buildTemplatesProd = ->
+  gulp.src paths.templates
+    .pipe sourcemaps.init()
+    .pipe jade pretty: yes
+    .pipe sourcemaps.write "."
 build = gulp.parallel buildStatic, buildScripts, buildStyles, buildTemplates
+prod = gulp.parallel buildStatic, buildScripts, buildStyles, buildTemplatesProd
 watchScripts = -> buildScripts yes
 watchOthers = ->
   gulp.watch paths.styles, buildStyles
@@ -88,14 +96,15 @@ app = -> run "python", ["-m", "SimpleHTTPServer"], "build/client"
 liveReload = gulp.parallel app, ->
   livereload.createServer().watch paths.clientBuild
 start = gulp.parallel db, app
-dev = gulp.series clean, build, gulp.parallel watch, liveReload
+dev = gulp.series clean, build, gulp.parallel watch, liveReload, ->
+  run "open", ["http://localhost:8000"]
 
 gulp.task "clean", clean
 gulp.task "build", build
+gulp.task "prod", prod
 gulp.task "watch", watch
 gulp.task "start", start
 gulp.task "db", db
 gulp.task "app", app
 gulp.task "live", liveReload
 gulp.task "default", dev
-
