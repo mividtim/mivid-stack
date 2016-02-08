@@ -1,8 +1,8 @@
 _ = require "lodash"
-actions = require "./actions.coffee"
+actions = require "./todosActions.coffee"
 Redux = require "Redux"
 
-todoReducer = (state, action) ->
+todo = (state, action) ->
   switch action.type
     when actions.ADD_TODO
       id: action.id
@@ -14,22 +14,22 @@ todoReducer = (state, action) ->
       else state
     else state
 
-todosReducer = (state = [], action) ->
+todosList = (state = [], action) ->
   switch action.type
     when actions.ADD_TODO then [
       state...
-      todoReducer undefined, action
+      todo undefined, action
     ]
     when actions.TOGGLE_TODO
-      state.map (todo) -> todoReducer todo, action
+      state.map (t) -> todo t, action
     else state
 
-todosFilterReducer = (state = "SHOW_ALL", action) ->
+todosFilter = (state = "SHOW_ALL", action) ->
   switch action.type
     when actions.SET_TODOS_FILTER
       action.filter
     else state
 
 module.exports = Redux.combineReducers
-  todos: todosReducer
-  todosFilter: todosFilterReducer
+  todosList: todosList
+  todosFilter: todosFilter

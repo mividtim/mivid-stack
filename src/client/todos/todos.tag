@@ -1,4 +1,4 @@
-todoApp
+todos
   add_todo
   visible_todo_list
   filter_link_list
@@ -23,10 +23,10 @@ visible_todo_list
   script.
     @mixin "subscribe"
     state = @store.getState()
-    @visibleTodos = (todo for todo in state.todos when \
-      state.todosFilter is "SHOW_ALL" or \
-      state.todosFilter is "SHOW_ACTIVE" and !todo.completed or \
-      state.todosFilter is "SHOW_COMPLETED" and todo.completed)
+    @visibleTodos = (todo for todo in state.todos.todosList when \
+      state.todos.todosFilter is "SHOW_ALL" or \
+      state.todos.todosFilter is "SHOW_ACTIVE" and !todo.completed or \
+      state.todos.todosFilter is "SHOW_COMPLETED" and todo.completed)
     @onClick = (id) => @store.dispatch @actions.toggleTodo id
 todo
   li(class="{completed: opts.completed}") {opts.text}
