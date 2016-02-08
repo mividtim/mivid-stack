@@ -37,7 +37,8 @@ Object.assign paths,
 
 urls =
   appEntry: "http://localhost:#{port}"
-  herokuDev: "https://git.heroku.com/mivid-stack.git"
+  herokuGit: "https://git.heroku.com/mivid-stack.git"
+  herokuEntry: "http://mivid-stack.herokuapp.com"
 
 browserifyOpts =
   entries: paths.clientEntry
@@ -113,6 +114,7 @@ buildClientTemplatesProd = ->
     .pipe sourcemaps.init loadMaps: yes
     .pipe jade()
     .pipe sourcemaps.write "."
+    .pipe gulp.dest paths.clientDestination
 
 buildClient = gulp.parallel(
   copyClientStatic
@@ -138,12 +140,12 @@ copyHeroku = ->
     .pipe gulp.dest paths.destination
 
 heroku = gulp.series clean, prod, copyHeroku,
-  -> run "cd", ["build"]
-  -> run "git", ["init"]
-  -> run "git", ["add", "."]
-  -> run "git", ["commit", "-m", "deploy"]
-  -> run "git", ["remote", "add", "heroku", urls.herokuDev]
-  -> run "git", ["push", "-u", "heroku", "master", "--force"]
+  -> run "git", ["init"], paths.destination
+  -> run "git", ["add", "."], paths.destination
+  -> run "git", ["commit", "-m", "deploy"], paths.destination
+  -> run "git", ["remote", "add", "heroku", urls.herokuGit], paths.destination
+  -> run "git", ["push", "-u", "heroku", "master", "--force"], paths.destination
+  -> run "open", [urls.herokuEntry]
 
 watchClientScripts = -> buildClientScripts yes
 

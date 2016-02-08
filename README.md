@@ -1,13 +1,12 @@
 Mivid Stack
 ===========
 
-An example Todo app in Riot and Redux with preprocessors
+An example Todo app in Riot, Redux, and Express with preprocessors
 
 ### Getting Started
 
     npm install
     npm run dev
-    open http://localhost:8000/
 
 ### Technolgies
 
