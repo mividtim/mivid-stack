@@ -5,6 +5,7 @@ todos = require "./todos/todos.coffee"
 todosActions = require "./todos/todosActions.coffee"
 Redux = require "Redux"
 riot = require "riot"
+homeTag = require "./home/home.tag"
 layoutTag = require "./layout/layout.tag"
 todosTag = require "./todos/todos.tag"
 
@@ -47,18 +48,16 @@ riot.route.start(true)
 currentTag = null
 store.subscribe ->
   state = store.getState()
-  if state.route is ""
-    currentTag?.unmount()
-  else
-    tag = switch state.route
-      when "todos" then todosTag
-    if tag?
-      currentTag = riot.mount "section.main", tag,
-        store: store,
-        actions: actions
-      if currentTag?
-        if currentTag.length > 0
-          currentTag = currentTag[0]
-        else
-          currentTag = null
-    else currentTag?.unmount()
+  tag = switch state.route
+    when "" then homeTag
+    when "todos" then todosTag
+  if tag?
+    currentTag = riot.mount "section.main", tag,
+      store: store,
+      actions: actions
+    if currentTag?
+      if currentTag.length > 0
+        currentTag = currentTag[0]
+      else
+        currentTag = null
+  else currentTag?.unmount()
