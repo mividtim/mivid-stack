@@ -38,7 +38,7 @@ filter_link_list
   filter_link(filter="SHOW_ACTIVE", text="Active")
   filter_link(filter="SHOW_COMPLETED", text="Completed")
 filter_link
-  disableable_link(enabled="{opts.filter !== state.todosFilter}", text="{opts.text}", on_click="{onClick}")
+  disableable_link(enabled="{opts.filter !== state.todos.todosFilter}", text="{opts.text}", on_click="{onClick}")
   script.
     @mixin "subscribe"
     @state = @store.getState()
