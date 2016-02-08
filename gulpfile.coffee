@@ -17,20 +17,30 @@ stylus = require "gulp-stylus"
 util = require "gulp-util"
 watchify = require "watchify"
 
+port = process.env.PORT || 8000
+
 paths =
   destination: "./build"
-  clientDestination: "./build/client"
-  clientScripts: "./src/client/index.coffee"
-  clientStyles: "./src/**/*.styl"
-  clientTemplates: "./src/**/*.jade"
+  clientBase: "./src/client"
   clientStatic: "./static/**/*"
-  serviceDestination: "./build/service"
-  serviceScripts: "./src/service/**/*.coffee"
-  serviceEntry: "./build/service/app.js"
-  heroku: "./heroku/**/*"
+  serviceBase: "./src/service"
+  herokuStatic: "./heroku/**/*"
+
+Object.assign paths,
+  clientDestination: "#{paths.destination}/client"
+  clientEntry: "#{paths.clientBase}/index.coffee"
+  clientStyles: "#{paths.clientBase}/**/*.styl"
+  clientTemplates: "#{paths.clientBase}/**/*.jade"
+  serviceDestination: paths.destination
+  serviceScripts: "#{paths.serviceBase}/**/*.coffee"
+  serviceEntry: "#{paths.destination}/app.js"
+
+urls =
+  appEntry: "http://localhost:#{port}"
+  herokuDev: "https://git.heroku.com/mivid-stack.git"
 
 browserifyOpts =
-  entries: paths.clientScripts,
+  entries: paths.clientEntry
   debug: yes
 
 run = (command, args, cwd = ".") ->
@@ -51,21 +61,29 @@ buildServiceScripts = ->
     .pipe sourcemaps.write "."
     .pipe gulp.dest paths.serviceDestination
 
+buildService = -> buildServiceScripts()
+
 copyClientStatic = ->
   gulp.src paths.clientStatic
-    .pipe gulp.dest paths.destination
+    .pipe gulp.dest paths.clientDestination
 
-buildClientScripts = (watch = no) ->
+buildClientScripts = (cb, watch = no) ->
   opts = browserifyOpts
-  if watch then opts = Object.assign {}, watchify.args, browserifyOpts
+  if watch then opts = Object.assign {}, watchify.args, opts
   bundler = browserify opts
+  if watch
+    bundler = watchify bundler
+    bundler.on "log", util.log
   bundler.transform coffeeify
   bundler.transform riotify,
-    template: "jade",
-    type: "coffeescript",
+    template: "jade"
+    type: "coffeescript"
     style: "stylus"
-  if watch then bundler = watchify bundler
-  rebundle = ->
+  if watch
+    bundler.on "update", ->
+      bundle.bind null, bundler
+      util.log "Rebundle..."
+  bundle = ->
     bundler.bundle()
       .on "error", util.log.bind util, "Browserify Error"
       .pipe source "bundle.js"
@@ -73,19 +91,14 @@ buildClientScripts = (watch = no) ->
       .pipe sourcemaps.init loadMaps: yes
       .pipe sourcemaps.write "./"
       .pipe gulp.dest paths.clientDestination
-  bundler.on "log", util.log
-  if watch
-    bundler.on "update", ->
-      rebundle()
-      util.log "Rebundle..."
-  rebundle()
+  bundle(bundler)
 
 buildClientStyles = ->
   gulp.src paths.clientStyles
     .pipe sourcemaps.init loadMaps: yes
     .pipe stylus()
     .pipe sourcemaps.write "."
-    .pipe gulp.dest paths.destination
+    .pipe gulp.dest paths.clientDestination
 
 buildClientTemplates = ->
   gulp.src paths.clientTemplates
@@ -93,7 +106,7 @@ buildClientTemplates = ->
     .pipe jade pretty: yes
     .pipe inject.append "<script>document.write('<script src=\"http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1\"></' + 'script>')</script>"
     .pipe sourcemaps.write "."
-    .pipe gulp.dest paths.destination
+    .pipe gulp.dest paths.clientDestination
 
 buildClientTemplatesProd = ->
   gulp.src paths.clientTemplates
@@ -101,24 +114,27 @@ buildClientTemplatesProd = ->
     .pipe jade()
     .pipe sourcemaps.write "."
 
-build = gulp.parallel(
-  buildServiceScripts,
-  copyClientStatic,
-  buildClientScripts,
-  buildClientStyles,
-  buildClientTemplates)
+buildClient = gulp.parallel(
+  copyClientStatic
+  buildClientScripts
+  buildClientStyles
+  buildClientTemplates
+)
+
+build = gulp.parallel buildService, buildClient
 
 rebuild = gulp.series clean, build
 
 prod = gulp.parallel(
-  buildServiceScripts,
-  copyClientStatic,
-  buildClientScripts,
-  buildClientStyles,
-  buildClientTemplatesProd)
+  buildServiceScripts
+  copyClientStatic
+  buildClientScripts
+  buildClientStyles
+  buildClientTemplatesProd
+)
 
 copyHeroku = ->
-  gulp.src paths.heroku
+  gulp.src paths.herokuStatic
     .pipe gulp.dest paths.destination
 
 heroku = gulp.series clean, prod, copyHeroku,
@@ -126,7 +142,8 @@ heroku = gulp.series clean, prod, copyHeroku,
   -> run "git", ["init"]
   -> run "git", ["add", "."]
   -> run "git", ["commit", "-m", "deploy"]
-  -> run "git", ["push", "heroku"]
+  -> run "git", ["remote", "add", "heroku", urls.herokuDev]
+  -> run "git", ["push", "-u", "heroku", "master", "--force"]
 
 watchClientScripts = -> buildClientScripts yes
 
@@ -140,7 +157,7 @@ watch = gulp.parallel watchClientScripts, watchOthers
 
 startDB = -> #run "mongodb", ["--dbpath", "./data"]
 
-startApp = -> #run "python", ["-m", "SimpleHTTPServer"], "build/client"
+startApp = ->
   run "node", ["app.js"], paths.serviceDestination
 
 monitorApp = ->
@@ -150,13 +167,16 @@ start = gulp.parallel startDB, monitorApp
 
 startProd = gulp.parallel startDB, startApp
 
-liveReload = gulp.parallel startApp, ->
-  livereload.createServer().watch paths.clientDestination
+liveReload = -> livereload.createServer().watch paths.destination
 
-dev = gulp.series rebuild, gulp.parallel watch, liveReload, start, ->
-  setTimeout (-> run "open", ["http://localhost:8000"]), 1000
+open = ->
+  setTimeout (-> run "open", [urls.appEntry]), 1000
+
+dev = gulp.series rebuild, gulp.parallel watch, liveReload, start, open
 
 gulp.task "clean", clean
+gulp.task "service", buildService
+gulp.task "client", buildClient
 gulp.task "build", build
 gulp.task "rebuild", rebuild
 gulp.task "prod", prod
@@ -166,5 +186,8 @@ gulp.task "prod", startProd
 gulp.task "heroku", heroku
 gulp.task "db", startDB
 gulp.task "app", startApp
+gulp.task "monitor", monitorApp
 gulp.task "live", liveReload
+gulp.task "dev", dev
 gulp.task "default", dev
+
