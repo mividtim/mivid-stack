@@ -6,8 +6,9 @@ del = require "del"
 gulp = require "gulp"
 inject = require "gulp-inject-string"
 jade = require "gulp-jade"
-livereload = require "livereload"
+livereload = require "gulp-livereload"
 nodemon = require "nodemon"
+notify = require "gulp-notify"
 process = require "process"
 riotify = require "riotify"
 source = require "vinyl-source-stream"
@@ -32,7 +33,7 @@ Object.assign paths,
   clientStyles: "#{paths.clientBase}/**/*.styl"
   clientTemplates: "#{paths.clientBase}/**/*.jade"
   serviceDestination: paths.destination
-  serviceScripts: "#{paths.serviceBase}/**/*.coffee"
+  serviceScript: "#{paths.serviceBase}/app.coffee"
   serviceEntry: "#{paths.destination}/app.js"
 
 urls =
@@ -51,12 +52,13 @@ run = (command, args, cwd = ".") ->
   runningCommand.stderr.on "data", (data) ->
     process.stderr.write "#{command}: #{data}"
   runningCommand.on "exit", (code) ->
-    process.stdout.write "#{command} exited with code #{code}"
+    if code isnt 0
+      process.stdout.write "#{command} exited with code #{code}\n"
 
 clean = -> del "build"
 
 buildServiceScripts = ->
-  gulp.src paths.serviceScripts
+  gulp.src paths.serviceScript
     .pipe sourcemaps.init loadMaps: yes
     .pipe coffee(bare: yes).on "error", util.log
     .pipe sourcemaps.write "."
@@ -67,6 +69,7 @@ buildService = -> buildServiceScripts()
 copyClientStatic = ->
   gulp.src paths.clientStatic
     .pipe gulp.dest paths.clientDestination
+    .pipe livereload()
 
 buildClientScripts = (cb, watch = no) ->
   opts = browserifyOpts
@@ -82,7 +85,7 @@ buildClientScripts = (cb, watch = no) ->
     style: "stylus"
   if watch
     bundler.on "update", ->
-      bundle.bind null, bundler
+      bundle()
       util.log "Rebundle..."
   bundle = ->
     bundler.bundle()
@@ -92,7 +95,8 @@ buildClientScripts = (cb, watch = no) ->
       .pipe sourcemaps.init loadMaps: yes
       .pipe sourcemaps.write "./"
       .pipe gulp.dest paths.clientDestination
-  bundle(bundler)
+      .pipe livereload()
+  bundle()
 
 buildClientStyles = ->
   gulp.src paths.clientStyles
@@ -100,6 +104,7 @@ buildClientStyles = ->
     .pipe stylus()
     .pipe sourcemaps.write "."
     .pipe gulp.dest paths.clientDestination
+    .pipe livereload()
 
 buildClientTemplates = ->
   gulp.src paths.clientTemplates
@@ -108,6 +113,7 @@ buildClientTemplates = ->
     .pipe inject.append "<script>document.write('<script src=\"http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1\"></' + 'script>')</script>"
     .pipe sourcemaps.write "."
     .pipe gulp.dest paths.clientDestination
+    .pipe livereload()
 
 buildClientTemplatesProd = ->
   gulp.src paths.clientTemplates
@@ -115,6 +121,7 @@ buildClientTemplatesProd = ->
     .pipe jade()
     .pipe sourcemaps.write "."
     .pipe gulp.dest paths.clientDestination
+    .pipe livereload()
 
 buildClient = gulp.parallel(
   copyClientStatic
@@ -147,13 +154,13 @@ heroku = gulp.series clean, prod, copyHeroku,
   -> run "git", ["push", "-u", "heroku", "master", "--force"], paths.destination
   -> run "open", [urls.herokuEntry]
 
-watchClientScripts = -> buildClientScripts yes
+watchClientScripts = -> buildClientScripts null, yes
 
 watchOthers = ->
-  gulp.watch paths.serviceScripts, buildServiceScripts
-  gulp.watch paths.clientStyles, buildClientStyles
-  gulp.watch paths.clientTemplates, buildClientTemplates
-  gulp.watch paths.clientStatic, copyClientStatic
+  gulp.watch paths.serviceScripts, gulp.series buildServiceScripts
+  gulp.watch paths.clientStyles, gulp.series buildClientStyles
+  gulp.watch paths.clientTemplates, gulp.series buildClientTemplates
+  gulp.watch paths.clientStatic, gulp.series copyClientStatic
 
 watch = gulp.parallel watchClientScripts, watchOthers
 
@@ -163,13 +170,17 @@ startApp = ->
   run "node", ["app.js"], paths.serviceDestination
 
 monitorApp = ->
-  nodemon script: paths.serviceEntry, watch: paths.serviceDestination
+  nodemon script: paths.serviceEntry
+    .on "restart", ->
+      gulp.src "build/app.js"
+        .pipe notify "Reloading page..."
+        .pipe livereload()
 
 start = gulp.parallel startDB, monitorApp
 
 startProd = gulp.parallel startDB, startApp
 
-liveReload = -> livereload.createServer().watch paths.destination
+liveReload = -> livereload.listen()
 
 open = ->
   setTimeout (-> run "open", [urls.appEntry]), 1000

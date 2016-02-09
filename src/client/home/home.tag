@@ -5,7 +5,6 @@ home
   pre
     npm install
     npm run dev
-    open http://localhost:8000/
   h2 Technolgies
   ul
     li Front-end built with Riot.js and Redux

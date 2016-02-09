@@ -3,6 +3,7 @@ layout
   header
     .logo
     span Mivid Stack
+    span Tim
   aside
     nav
       ul
