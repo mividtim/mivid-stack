@@ -33,7 +33,7 @@ Object.assign paths,
   clientStyles: "#{paths.clientBase}/**/*.styl"
   clientTemplates: "#{paths.clientBase}/**/*.jade"
   serviceDestination: paths.destination
-  serviceScript: "#{paths.serviceBase}/app.coffee"
+  serviceScripts: "#{paths.serviceBase}/**/*.coffee"
   serviceEntry: "#{paths.destination}/app.js"
 
 urls =
@@ -58,7 +58,7 @@ run = (command, args, cwd = ".") ->
 clean = -> del "build"
 
 buildServiceScripts = ->
-  gulp.src paths.serviceScript
+  gulp.src paths.serviceScripts
     .pipe sourcemaps.init loadMaps: yes
     .pipe coffee(bare: yes).on "error", util.log
     .pipe sourcemaps.write "."
