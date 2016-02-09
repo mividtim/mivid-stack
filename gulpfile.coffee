@@ -157,10 +157,10 @@ heroku = gulp.series clean, prod, copyHeroku,
 watchClientScripts = -> buildClientScripts null, yes
 
 watchOthers = ->
-  gulp.watch paths.serviceScripts, gulp.series buildServiceScripts
-  gulp.watch paths.clientStyles, gulp.series buildClientStyles
-  gulp.watch paths.clientTemplates, gulp.series buildClientTemplates
-  gulp.watch paths.clientStatic, gulp.series copyClientStatic
+  gulp.watch paths.serviceScripts, buildServiceScripts
+  gulp.watch paths.clientStyles, buildClientStyles
+  gulp.watch paths.clientTemplates, buildClientTemplates
+  gulp.watch paths.clientStatic, copyClientStatic
 
 watch = gulp.parallel watchClientScripts, watchOthers
 
@@ -170,9 +170,9 @@ startApp = ->
   run "node", ["app.js"], paths.serviceDestination
 
 monitorApp = ->
-  nodemon script: paths.serviceEntry
+  nodemon script: paths.serviceEntry, ignore: "client/*"
     .on "restart", ->
-      gulp.src "build/app.js"
+      gulp.src paths.serviceEntry
         .pipe notify "Reloading page..."
         .pipe livereload()
 
