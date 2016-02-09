@@ -1,7 +1,7 @@
 {
   "author": "Tim Garthwaite <tim@mividstudios.com>",
   "name": "mivid-stack",
-  "description": "Example Todo project in Riot and Redux with preprocessors",
+  "description": "Example project in Riot, Redux, and RethinkDB",
   "version": "0.1.0",
   "license": "MIT",
   "homepage": "https://github.com/mividtim/mivid-stack",

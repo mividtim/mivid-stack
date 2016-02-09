@@ -29,6 +29,7 @@ paths =
   herokuDestination: "./heroku"
 
 Object.assign paths,
+  allDestination: "#{paths.destination}/**/*"
   clientDestination: "#{paths.destination}/client"
   clientEntry: "#{paths.clientBase}/index.coffee"
   clientStyles: "#{paths.clientBase}/**/*.styl"
@@ -55,7 +56,10 @@ run = (command, args, cwd = ".") ->
     if code isnt 0
       process.stdout.write "#{command} exited with code #{code}\n"
 
-clean = -> del "build"
+clean = gulp.series(
+	  -> del "build"
+	  -> del "heroku"
+	)
 
 buildServiceScripts = ->
   gulp.src paths.serviceScripts
@@ -142,9 +146,15 @@ prod = gulp.parallel(
   buildClientTemplatesProd
 )
 
-copyHeroku = ->
+copyHerokuStatic = ->
   gulp.src paths.herokuStatic
     .pipe gulp.dest paths.herokuDestination
+
+copyHerokuApp = ->
+  gulp.src paths.allDestination
+    .pipe gulp.dest paths.herokuDestination
+
+copyHeroku = gulp.series copyHerokuStatic, copyHerokuApp
 
 heroku = gulp.series clean, prod, copyHeroku,
   -> run "git", ["init"], paths.herokuDestination

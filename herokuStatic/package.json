@@ -1,8 +1,9 @@
 {
   "author": "Tim Garthwaite <tim@mividstudios.com>",
   "name": "mivid-stack",
-  "description": "Example Todo project in Riot and Redux with preprocessors",
+  "description": "Example project in Riot, Redux, and RethinkDB",
   "version": "0.1.0",
+  "license": "MIT",
   "homepage": "https://github.com/mividtim/mivid-stack",
   "repository": {
     "type": "git",
@@ -12,12 +13,17 @@
     "node": "^5.4.0"
   },
   "dependencies": {
+    "bluebird": "^3.2.2",
     "browserify": "^13.0.0",
     "express": "^4.13.4",
+    "iced-runtime": "^1.0.3",
     "jquery": "^2.2.0",
     "lodash": "^4.2.1",
     "nodemon": "^1.8.1",
     "redux": "^3.2.1",
+    "rethinkdb": "^2.2.1",
+    "rethinkdb-websocket-client": "^0.4.6",
+    "rethinkdb-websocket-server": "^0.4.0",
     "riot": "^2.3.15"
   }
 }

@@ -1,7 +1,10 @@
+# Preload some universal tags
+require "./tags/disableable_link.tag"
+require "./tags/layout.tag"
+require "./tags/navigation.tag"
+
+# Export routable tags
 module.exports =
-  disableable_link: require "./tags/disableable_link.tag"
-  layout: require "./tags/layout.tag"
   home: require "./tags/home.tag"
-  navigation: require "./tags/navigation.tag"
   todos: require "./todos/todos.tag"
-  #rdb = require "./rdb/rdb.tag"
+  rdb: require "./rdb/rdb.tag"
