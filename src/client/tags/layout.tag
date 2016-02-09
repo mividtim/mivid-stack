@@ -1,20 +1,16 @@
 layout
-  display: flex
   header
     .logo
     span Mivid Stack
-  aside
-    nav
-      ul
-        li
-          a(href="#") Home
-        li
-          a(href="#todos") Todos
+  navigation
   section.main
   style(scoped).
+    :scope
+      display: flex
     primaryColor = #330044
     header, footer
       height: 150px
+      width: 100%
       font-size: 300%
       background-color: primaryColor
       color: white

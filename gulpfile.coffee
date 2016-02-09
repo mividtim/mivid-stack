@@ -1,9 +1,9 @@
 browserify = require "browserify"
 buffer = require "vinyl-buffer"
-coffee = require "gulp-coffee"
-coffeeify = require "coffeeify"
+iced = require "gulp-iced"
 del = require "del"
 gulp = require "gulp"
+icsify = require "icsify"
 inject = require "gulp-inject-string"
 jade = require "gulp-jade"
 livereload = require "gulp-livereload"
@@ -25,7 +25,8 @@ paths =
   clientBase: "./src/client"
   clientStatic: "./static/**/*"
   serviceBase: "./src/service"
-  herokuStatic: "./heroku/**/*"
+  herokuStatic: "./herokuStatic/**/*"
+  herokuDestination: "./heroku"
 
 Object.assign paths,
   clientDestination: "#{paths.destination}/client"
@@ -39,7 +40,6 @@ Object.assign paths,
 urls =
   appEntry: "http://localhost:#{port}"
   herokuGit: "https://git.heroku.com/mivid-stack.git"
-  herokuEntry: "http://mivid-stack.herokuapp.com"
 
 browserifyOpts =
   entries: paths.clientEntry
@@ -60,7 +60,7 @@ clean = -> del "build"
 buildServiceScripts = ->
   gulp.src paths.serviceScripts
     .pipe sourcemaps.init loadMaps: yes
-    .pipe coffee(bare: yes).on "error", util.log
+    .pipe iced(bare: yes).on "error", util.log
     .pipe sourcemaps.write "."
     .pipe gulp.dest paths.serviceDestination
 
@@ -78,7 +78,7 @@ buildClientScripts = (cb, watch = no) ->
   if watch
     bundler = watchify bundler
     bundler.on "log", util.log
-  bundler.transform coffeeify
+  bundler.transform icsify
   bundler.transform riotify,
     template: "jade"
     type: "coffeescript"
@@ -144,15 +144,17 @@ prod = gulp.parallel(
 
 copyHeroku = ->
   gulp.src paths.herokuStatic
-    .pipe gulp.dest paths.destination
+    .pipe gulp.dest paths.herokuDestination
 
 heroku = gulp.series clean, prod, copyHeroku,
-  -> run "git", ["init"], paths.destination
-  -> run "git", ["add", "."], paths.destination
-  -> run "git", ["commit", "-m", "deploy"], paths.destination
-  -> run "git", ["remote", "add", "heroku", urls.herokuGit], paths.destination
-  -> run "git", ["push", "-u", "heroku", "master", "--force"], paths.destination
-  -> run "open", [urls.herokuEntry]
+  -> run "git", ["init"], paths.herokuDestination
+  -> run "git", ["add", "."], paths.herokuDestination
+  -> run "git", ["commit", "-m", "deploy"], paths.herokuDestination
+  -> run "git", ["remote", "add", "heroku", urls.herokuGit],
+         paths.herokuDestination
+  -> run "git", ["push", "-u", "heroku", "master", "--force"],
+         paths.herokuDestination
+  -> run "heroku", ["open"], paths.herokuDestination
 
 watchClientScripts = -> buildClientScripts null, yes
 

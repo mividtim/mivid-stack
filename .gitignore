@@ -25,6 +25,7 @@ node_modules/
 # Brunch folder for temporary files.
 tmp/
 
-# The build output folder
+# Build output folders
 build/
+heroku/
 

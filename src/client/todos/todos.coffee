@@ -1,6 +1,25 @@
 _ = require "lodash"
-actions = require "./todosActions.coffee"
 Redux = require "Redux"
+tag = require "./todos.tag"
+
+nextID = 0
+
+actions =
+  ADD_TODO: "ADD_TODO"
+  SET_TODOS_FILTER: "SET_TODOS_FILTER"
+  TOGGLE_TODO: "TOGGLE_TODO"
+
+performers =
+  addTodo: (text) ->
+    type: actions.ADD_TODO
+    id: nextID++
+    text: text
+  setTodosFilter: (filter) ->
+    type: actions.SET_TODOS_FILTER
+    filter: filter
+  toggleTodo: (id) ->
+    type: actions.TOGGLE_TODO
+    id: id
 
 todo = (state, action) ->
   switch action.type
@@ -30,6 +49,12 @@ todosFilter = (state = "SHOW_ALL", action) ->
       action.filter
     else state
 
-module.exports = Redux.combineReducers
-  todosList: todosList
-  todosFilter: todosFilter
+reducer = Redux.combineReducers
+    todosList: todosList
+    todosFilter: todosFilter
+
+module.exports =
+  actions: actions
+  performers: performers
+  reducer: reducer
+  tag: tag
