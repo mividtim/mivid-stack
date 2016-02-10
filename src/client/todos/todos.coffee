@@ -6,20 +6,20 @@ nextID = 0
 
 actions =
   ADD_TODO: "ADD_TODO"
-  SET_TODOS_FILTER: "SET_TODOS_FILTER"
   TOGGLE_TODO: "TOGGLE_TODO"
+  SET_TODOS_FILTER: "SET_TODOS_FILTER"
 
 performers =
-  addTodo: (text) ->
+  add: (text) ->
     type: actions.ADD_TODO
     id: nextID++
     text: text
-  setTodosFilter: (filter) ->
-    type: actions.SET_TODOS_FILTER
-    filter: filter
-  toggleTodo: (id) ->
+  toggle: (id) ->
     type: actions.TOGGLE_TODO
     id: id
+  setFilter: (filter) ->
+    type: actions.SET_TODOS_FILTER
+    filter: filter
 
 todo = (state, action) ->
   switch action.type

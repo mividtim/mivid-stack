@@ -16,18 +16,18 @@ add_todo
     @on "mount", ->
       @root.querySelector("form").addEventListener "submit", (event) =>
         event.preventDefault()
-        @store.dispatch @performers.todos.addTodo @root.querySelector("input").value
+        @store.dispatch @performers.todos.add @root.querySelector("input").value
 visible_todo_list
   ul
     todo(each="{visibleTodos}", on_click="{parent.onClick}", completed="{completed}", text="{text}", id="{id}")
   script.
     @mixin "subscribe"
     state = @store.getState()
-    @visibleTodos = (todo for todo in state.todos.todosList when \
-      state.todos.todosFilter is "SHOW_ALL" or \
-      state.todos.todosFilter is "SHOW_ACTIVE" and !todo.completed or \
-      state.todos.todosFilter is "SHOW_COMPLETED" and todo.completed)
-    @onClick = (id) => @store.dispatch @performers.todos.toggleTodo id
+    @visibleTodos = (todo for todo in state.todos.list when \
+      state.todos.filter is "SHOW_ALL" or \
+      state.todos.filter is "SHOW_ACTIVE" and !todo.completed or \
+      state.todos.filter is "SHOW_COMPLETED" and todo.completed)
+    @onClick = (id) => @store.dispatch @performers.todos.toggle id
 todo
   li(class="{completed: opts.completed}") {opts.text}
   script.
@@ -41,5 +41,5 @@ filter_link
   disableable_link(enabled="{opts.filter !== todosFilter}", text="{opts.text}", on_click="{onClick}")
   script.
     @mixin "subscribe"
-    @todosFilter = @store.getState().todos.todosFilter
-    @onClick = => @store.dispatch @performers.todos.setTodosFilter opts.filter
+    @todosFilter = @store.getState().todos.filter
+    @onClick = => @store.dispatch @performers.todos.setFilter opts.filter
