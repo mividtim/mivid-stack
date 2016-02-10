@@ -1,9 +1,9 @@
 home
-  include:markdown ./README.md
+  include:marked ./README.md
   h1
     a.toggleDetails(href="#") Details
   div.details(class="{hidden: hideDetails}")
-    include:markdown ./DETAILS.md
+    include:marked ./DETAILS.md
   style(scoped).
     div.details.hidden
       display: none

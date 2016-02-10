@@ -53,6 +53,7 @@
     "gulp-stylus": "^2.3.0",
     "iced-coffee-script": "^108.0.9",
     "icsify": "^0.7.0",
+    "jstransformer-marked": "^1.0.1",
     "nodemon": "^1.8.1",
     "riotify": "^0.1.2",
     "vinyl-buffer": "^1.0.0",
