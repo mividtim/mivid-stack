@@ -159,8 +159,9 @@ liveReload = -> livereload.listen()
 
 open = -> exec "open", [urls.appEntry]
 
-dev = gulp.series rebuild, gulp.parallel watch, liveReload, monitor, ->
-  setTimeout open, 1000
+dev = gulp.parallel watch, liveReload, monitor, -> setTimeout open, 1000
+
+redev = gulp.series rebuild, dev
 
 prod = gulp.parallel(
   buildServiceScripts
@@ -203,6 +204,7 @@ gulp.task "monitor", monitor
 gulp.task "live", liveReload
 gulp.task "open", open
 gulp.task "dev", dev
+gulp.task "redev", redev
 gulp.task "prod", prod
 gulp.task "app", app
 gulp.task "heroku", heroku

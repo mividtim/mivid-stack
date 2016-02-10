@@ -23,6 +23,7 @@
     "live": "node node_modules/gulp/bin/gulp.js live",
     "open": "node node_modules/gulp/bin/gulp.js open",
     "dev": "node node_modules/gulp/bin/gulp.js dev",
+    "redev": "node node_modules/gulp/bin/gulp.js redev",
     "prod": "node node_modules/gulp/bin/gulp.js build",
     "app": "node node_modules/gulp/bin/gulp.js app",
     "heroku": "node node_modules/gulp/bin/gulp.js heroku",

@@ -6,6 +6,7 @@ An example Todo app in Riot, Redux, and Express with preprocessors
 ### Getting Started
 
     npm install
+    npm run build
     npm run dev
 
 ### Technolgies
