@@ -23,9 +23,9 @@ port = process.env.PORT || 8000
 paths =
   destination: "./build"
   clientBase: "./src/client"
-  clientStatic: "./static/**/*"
+  clientStatic: "./src/static/**/*"
   serviceBase: "./src/service"
-  herokuStatic: "./herokuStatic/**/*"
+  herokuStatic: ["./package.json", "./src/heroku/**/*"]
   herokuDestination: "./heroku"
 
 Object.assign paths,
@@ -46,7 +46,7 @@ browserifyOpts =
   entries: paths.clientEntry
   debug: yes
 
-run = (command, args, cwd = ".") ->
+exec = (command, args, cwd = ".") ->
   runningCommand = spawn command, args, cwd: cwd
   runningCommand.stdout.on "data", (data) ->
     process.stdout.write "#{command}: #{data}"
@@ -138,6 +138,30 @@ build = gulp.parallel buildService, buildClient
 
 rebuild = gulp.series clean, build
 
+watchClientScripts = -> buildClientScripts null, yes
+
+watchOthers = ->
+  gulp.watch paths.serviceScripts, buildServiceScripts
+  gulp.watch paths.clientStyles, buildClientStyles
+  gulp.watch paths.clientTemplates, buildClientTemplates
+  gulp.watch paths.clientStatic, copyClientStatic
+
+watch = gulp.parallel watchClientScripts, watchOthers
+
+monitor = ->
+  nodemon script: paths.serviceEntry, ignore: "client/*"
+    .on "restart", ->
+      gulp.src paths.serviceEntry
+        .pipe notify "Reloading page..."
+        .pipe livereload()
+
+liveReload = -> livereload.listen()
+
+open = -> exec "open", [urls.appEntry]
+
+dev = gulp.series rebuild, gulp.parallel watch, liveReload, monitor, ->
+  setTimeout open, 1000
+
 prod = gulp.parallel(
   buildServiceScripts
   copyClientStatic
@@ -145,6 +169,8 @@ prod = gulp.parallel(
   buildClientStyles
   buildClientTemplatesProd
 )
+
+app = -> exec "node", ["app.js"], paths.serviceDestination
 
 copyHerokuStatic = ->
   gulp.src paths.herokuStatic
@@ -157,62 +183,26 @@ copyHerokuApp = ->
 copyHeroku = gulp.series copyHerokuStatic, copyHerokuApp
 
 heroku = gulp.series clean, prod, copyHeroku,
-  -> run "git", ["init"], paths.herokuDestination
-  -> run "git", ["add", "."], paths.herokuDestination
-  -> run "git", ["commit", "-m", "deploy"], paths.herokuDestination
-  -> run "git", ["remote", "add", "heroku", urls.herokuGit],
-         paths.herokuDestination
-  -> run "git", ["push", "-u", "heroku", "master", "--force"],
-         paths.herokuDestination
-  -> run "heroku", ["open"], paths.herokuDestination
+  -> exec "git", ["init"], paths.herokuDestination
+  -> exec "git", ["add", "."], paths.herokuDestination
+  -> exec "git", ["commit", "-m", "deploy"], paths.herokuDestination
+  -> exec "git", ["remote", "add", "heroku", urls.herokuGit],
+          paths.herokuDestination
+  -> exec "git", ["push", "-u", "heroku", "master", "--force"],
+          paths.herokuDestination
+  -> exec "heroku", ["open"], paths.herokuDestination
 
-watchClientScripts = -> buildClientScripts null, yes
-
-watchOthers = ->
-  gulp.watch paths.serviceScripts, buildServiceScripts
-  gulp.watch paths.clientStyles, buildClientStyles
-  gulp.watch paths.clientTemplates, buildClientTemplates
-  gulp.watch paths.clientStatic, copyClientStatic
-
-watch = gulp.parallel watchClientScripts, watchOthers
-
-startDB = -> #run "mongodb", ["--dbpath", "./data"]
-
-startApp = ->
-  run "node", ["app.js"], paths.serviceDestination
-
-monitorApp = ->
-  nodemon script: paths.serviceEntry, ignore: "client/*"
-    .on "restart", ->
-      gulp.src paths.serviceEntry
-        .pipe notify "Reloading page..."
-        .pipe livereload()
-
-start = gulp.parallel startDB, monitorApp
-
-startProd = gulp.parallel startDB, startApp
-
-liveReload = -> livereload.listen()
-
-open = ->
-  setTimeout (-> run "open", [urls.appEntry]), 1000
-
-dev = gulp.series rebuild, gulp.parallel watch, liveReload, start, open
-
+gulp.task "default", dev
 gulp.task "clean", clean
 gulp.task "service", buildService
 gulp.task "client", buildClient
 gulp.task "build", build
 gulp.task "rebuild", rebuild
-gulp.task "prod", prod
 gulp.task "watch", watch
-gulp.task "start", start
-gulp.task "prod", startProd
-gulp.task "heroku", heroku
-gulp.task "db", startDB
-gulp.task "app", startApp
-gulp.task "monitor", monitorApp
+gulp.task "monitor", monitor
 gulp.task "live", liveReload
+gulp.task "open", open
 gulp.task "dev", dev
-gulp.task "default", dev
-
+gulp.task "prod", prod
+gulp.task "app", app
+gulp.task "heroku", heroku

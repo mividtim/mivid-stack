@@ -1,9 +1,0 @@
-{
-  "name": "Mivid Stack",
-  "description": "Example Todo project in Riot and Redux with preprocessors",
-  "repository": "https://github.com/mividtim/mivid-stack",
-  "logo": "http://node-js-sample.herokuapp.com/node.svg",
-  "keywords": ["node", "express", "static"],
-  "image": "heroku/nodejs"
-}
-
