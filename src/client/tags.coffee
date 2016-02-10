@@ -5,6 +5,6 @@ require "./tags/navigation.tag"
 
 # Export routable tags
 module.exports =
-  home: require "./tags/home.tag"
+  home: require "./home/home.tag"
   todos: require "./todos/todos.tag"
   rdb: require "./rdb/rdb.tag"

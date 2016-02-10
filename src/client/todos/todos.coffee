@@ -33,7 +33,7 @@ todo = (state, action) ->
       else state
     else state
 
-todosList = (state = [], action) ->
+list = (state = [], action) ->
   switch action.type
     when actions.ADD_TODO then [
       state...
@@ -43,15 +43,15 @@ todosList = (state = [], action) ->
       state.map (t) -> todo t, action
     else state
 
-todosFilter = (state = "SHOW_ALL", action) ->
+filter = (state = "SHOW_ALL", action) ->
   switch action.type
     when actions.SET_TODOS_FILTER
       action.filter
     else state
 
 reducer = Redux.combineReducers
-    todosList: todosList
-    todosFilter: todosFilter
+  list: list
+  filter: filter
 
 module.exports =
   actions: actions

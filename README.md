@@ -15,6 +15,8 @@ An example Todo app in Riot, Redux, and Express with preprocessors
 * Entire code base built with Jade, Stylus, and Coffeescript preprocessors
 * Build chain with Gulp and Browserify
 
-### Live Example
+### Links
 
-https://mivid-stack.herokuapp.com
+* [Project home (source repo)](https://github.com/mividtim/mivid-stack)
+* [Live Example](https://mivid-stack.herokuapp.com)
+* [Details](https://github.com/mividtim/mivid-stack/blob/master/DETAILS.md)
