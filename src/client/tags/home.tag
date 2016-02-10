@@ -7,6 +7,10 @@ home
     npm run dev
   h2 Technolgies
   ul
-    li Front-end built with Riot.js and Redux
+    li Functional front-end built with Riot.js and Redux
+    li Real-time back-end built with RethinkDB, Express, and RethinkdbWebsocket*
     li Entire code base built with Jade, Stylus, and Coffeescript preprocessors
     li Build chain with Gulp and Browserify
+  h2 Live Example
+    a(href="https://mivid-stack.herokuapp.com").
+      https://mivid-stack.herokuapp.com
