@@ -2,32 +2,30 @@ _ = require "lodash"
 Redux = require "Redux"
 tag = require "./todos.tag"
 
+ADD_TODO = "ADD_TODO"
+TOGGLE_TODO = "TOGGLE_TODO"
+SET_TODOS_FILTER = "SET_TODOS_FILTER"
+
 nextID = 0
-
 actions =
-  ADD_TODO: "ADD_TODO"
-  TOGGLE_TODO: "TOGGLE_TODO"
-  SET_TODOS_FILTER: "SET_TODOS_FILTER"
-
-performers =
   add: (text) ->
-    type: actions.ADD_TODO
+    type: ADD_TODO
     id: nextID++
     text: text
   toggle: (id) ->
-    type: actions.TOGGLE_TODO
+    type: TOGGLE_TODO
     id: id
   setFilter: (filter) ->
-    type: actions.SET_TODOS_FILTER
+    type: SET_TODOS_FILTER
     filter: filter
 
 todo = (state, action) ->
   switch action.type
-    when actions.ADD_TODO
+    when ADD_TODO
       id: action.id
       text: action.text
       completed: no
-    when actions.TOGGLE_TODO
+    when TOGGLE_TODO
       if state.id is action.id
         _.assign {}, state, completed: !state.completed
       else state
@@ -35,17 +33,17 @@ todo = (state, action) ->
 
 list = (state = [], action) ->
   switch action.type
-    when actions.ADD_TODO then [
+    when ADD_TODO then [
       state...
       todo undefined, action
     ]
-    when actions.TOGGLE_TODO
+    when TOGGLE_TODO
       state.map (t) -> todo t, action
     else state
 
 filter = (state = "SHOW_ALL", action) ->
   switch action.type
-    when actions.SET_TODOS_FILTER
+    when SET_TODOS_FILTER
       action.filter
     else state
 
@@ -55,6 +53,5 @@ reducer = Redux.combineReducers
 
 module.exports =
   actions: actions
-  performers: performers
   reducer: reducer
   tag: tag

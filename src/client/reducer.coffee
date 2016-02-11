@@ -1,11 +1,9 @@
+_ = require "lodash"
 Redux = require "redux"
 routing = require "./routing.coffee"
-home = require "./home/home.coffee"
-todos = require "./todos/todos.coffee"
-rdb = require "./rdb/rdb.coffee"
-
-module.exports = Redux.combineReducers
-  route: routing.reducer
-  home: home.reducer
-  todos: todos.reducer
-  rdb: rdb.reducer
+routes = require "./routes/**/*.coffee", mode: "list"
+reducers = _.reduce routes,
+  ((reducers, route) -> reducers[route.module.tag] = route.module.reducer; reducers),
+  {}
+Object.assign reducers, route: routing.reducer
+module.exports = Redux.combineReducers reducers

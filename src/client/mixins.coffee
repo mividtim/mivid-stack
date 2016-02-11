@@ -1,6 +1,5 @@
 riot = require "riot"
 actions = require "./actions.coffee"
-performers = require "./performers.coffee"
 
 ContextMixin =
   init: ->
@@ -9,7 +8,7 @@ ContextMixin =
       ob = ob.parent while ob.parent?
       @store = ob.opts.store
       @actions = actions
-      @performers = performers
+riot.mixin "context", ContextMixin
 
 SubscribeMixin =
   init: ->
@@ -18,6 +17,4 @@ SubscribeMixin =
       @unsubscribe = @store.subscribe => riot.mount @root, store: @store
     @on "unmount", ->
       @unsubscribe()
-
-riot.mixin "context", ContextMixin
 riot.mixin "subscribe", SubscribeMixin

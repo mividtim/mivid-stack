@@ -6,6 +6,7 @@ tag = require "./rdb.tag"
 # In case you want bluebird, which is bundled with the rethinkdb driver
 #Promise = RethinkdbWebsocketClient.Promise;
 
+# TBD: Get this from a global config file (package.json?)
 rethinkOptions =
   host: "localhost",       # hostname of the websocket server
   port: 8000,              # port number of the websocket server
@@ -15,6 +16,7 @@ rethinkOptions =
   db: "test",              # default database, passed to rethinkdb.connect
   simulatedLatencyMs: 100, # wait 100ms before sending each message (optional)
 
+# TBD: Refactor specific queries to separate files
 getAll = ->
   RethinkdbWebsocketClient.connect(rethinkOptions).then (conn) ->
     r.table("turtles").filter(herdId: 'awesomesauce').run conn, (err, cursor) ->
@@ -22,25 +24,24 @@ getAll = ->
       cursor.toArray (err, results) ->
         store.dispatch
 
-actions =
-  GET_ALL_TURTLES: "GET_ALL_TURTLES"
-  SET_TURTLES: "SET_TURTLES"
+GET_ALL_TURTLES = "GET_ALL_TURTLES"
+SET_TURTLES = "SET_TURTLES"
 
-performers =
+actions =
   getAll: ->
-    type: actions.GET_ALL_TURTLES
+    type: GET_ALL_TURTLES
   set: (turtles) ->
-    type: actions.SET_TURTLES
+    type: SET_TURTLES
     turtles: turtles
 
 # Redux Reducers
 
 turtles = (state = [], action) ->
   switch action.type
-    when actions.GET_ALL_TURTLES
+    when GET_ALL_TURTLES
       getAll()
       state
-    when actions.SET_TURTLES
+    when SET_TURTLES
       action.turtles
     else state
 
@@ -49,6 +50,5 @@ reducer = Redux.combineReducers
 
 module.exports =
   actions: actions
-  performers: performers
   reducer: reducer
   tag: tag

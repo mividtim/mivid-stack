@@ -2,6 +2,7 @@ browserify = require "browserify"
 buffer = require "vinyl-buffer"
 iced = require "gulp-iced"
 del = require "del"
+globify = require "require-globify"
 gulp = require "gulp"
 icsify = require "icsify"
 inject = require "gulp-inject-string"
@@ -87,6 +88,7 @@ buildClientScripts = (cb, watch = no) ->
     template: "jade"
     type: "coffeescript"
     style: "stylus"
+  bundler.transform globify
   if watch
     bundler.on "update", ->
       bundle()

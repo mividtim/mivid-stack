@@ -13,4 +13,4 @@ home
     @on "mount", ->
       @root.querySelector("a.toggleDetails").addEventListener "click", (event) =>
         event.preventDefault()
-        @store.dispatch @performers.home.toggleDetails()
+        @store.dispatch @actions.home.toggleDetails()

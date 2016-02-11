@@ -5,4 +5,4 @@ rdb
     @on "mount", ->
       @root.querySelector("a.queryTurtles").addEventListener "click", (event) =>
         event.preventDefault()
-        @store.dispatch @performers.rdb.getAll()
+        @store.dispatch @actions.rdb.getAll()
