@@ -6,8 +6,8 @@ navigation
           disableable_link(enabled="{route !== ''}", text="Home", href="#")
         li(class="{selected: route === 'todos'}")
           disableable_link(enabled="{route !== 'todos'}", text="Todos", href="#todos")
-        li(class="{selected: route === 'rdb'}")
-          disableable_link(enabled="{route !== 'rdb'}", text="RDB", href="#rdb")
+        li(class="{selected: route === 'turtles'}")
+          disableable_link(enabled="{route !== 'turtles'}", text="Turtles", href="#turtles")
   style(scoped).
     ul
       padding: 0 20px

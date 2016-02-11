@@ -1,13 +1,15 @@
 Redux = require "Redux"
+thunk = require "redux-thunk"
 riot = require "riot"
 reducer = require "./reducer.coffee"
 routing = require "./routing.coffee"
-layoutTag = require "./tags/layout.tag"
 require "./mixins.coffee"
 require "./tags.coffee"
 
 devTools = window?.devToolsExtension?()
+middlewares = Redux.compose Redux.applyMiddleware(thunk), devTools
+store = Redux.createStore reducer, undefined, middlewares
 
-store = Redux.createStore reducer, undefined, devTools
-riot.mount layoutTag, store: store
+riot.mount "layout", store: store
+
 routing.startRouter store

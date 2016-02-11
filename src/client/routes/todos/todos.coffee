@@ -47,11 +47,13 @@ filter = (state = "SHOW_ALL", action) ->
       action.filter
     else state
 
-reducer = Redux.combineReducers
-  list: list
-  filter: filter
+reducer = Redux.combineReducers {
+  list
+  filter
+}
 
-module.exports =
-  actions: actions
-  reducer: reducer
-  tag: tag
+module.exports = {
+  actions
+  reducer
+  tag
+}

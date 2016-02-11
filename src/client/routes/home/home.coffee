@@ -13,10 +13,12 @@ details = (state = "HIDE", action) ->
       if state is "SHOW" then "HIDE" else "SHOW"
     else state
 
-reducer = Redux.combineReducers
-  details: details
+reducer = Redux.combineReducers {
+  details
+}
 
-module.exports =
-  actions: actions
-  reducer: reducer
-  tag: tag
+module.exports = {
+  actions
+  reducer
+  tag
+}

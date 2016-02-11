@@ -3,9 +3,10 @@ riot = require "riot"
 ROUTE = "ROUTE"
 
 actions =
-  route: (route) ->
+  route: (route) -> {
     type: ROUTE
-    route: route
+    route
+}
 
 reducer = (state = "", action) ->
   if action.type is ROUTE
@@ -29,7 +30,8 @@ startRouter = (store) ->
         currentTag = null
     else currentTag?.unmount(true)
 
-module.exports =
-  actions: actions
-  reducer: reducer
-  startRouter: startRouter
+module.exports = {
+  actions
+  reducer
+  startRouter
+}
