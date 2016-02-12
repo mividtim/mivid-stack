@@ -36,12 +36,12 @@
     "lodash": "^4.2.1",
     "redux": "^3.2.1",
     "redux-thunk": "^1.0.3",
-    "rethinkdb": "^2.2.1",
     "rethinkdb-websocket-client": "^0.4.6",
-    "rethinkdb-websocket-server": "^0.4.0",
+    "rethinkdb-websocket-server": "mividtim/rethinkdb-websocket-server",
     "riot": "^2.3.15"
   },
   "devDependencies": {
+    "brfs": "^1.4.3",
     "coffee-script": "^1.10.0",
     "del": "^2.2.0",
     "gulp": "git+https://git@github.com/gulpjs/gulp.git#4.0",
@@ -58,6 +58,7 @@
     "nodemon": "^1.8.1",
     "require-globify": "^1.3.0",
     "riotify": "^0.1.2",
+    "stringify": "^4.0.1",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.7.0"

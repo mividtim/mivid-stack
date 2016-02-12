@@ -1,3 +1,4 @@
+brfs = require "brfs"
 browserify = require "browserify"
 buffer = require "vinyl-buffer"
 iced = require "gulp-iced"
@@ -89,6 +90,7 @@ buildClientScripts = (cb, watch = no) ->
     type: "coffeescript"
     style: "stylus"
   bundler.transform globify
+  bundler.transform brfs
   if watch
     bundler.on "update", ->
       bundle()
@@ -96,7 +98,7 @@ buildClientScripts = (cb, watch = no) ->
   bundle = ->
     bundler.bundle()
       .on "error", util.log.bind util, "Browserify Error"
-      .pipe source "bundle.js"
+      .pipe source "index.js"
       .pipe buffer()
       .pipe sourcemaps.init loadMaps: yes
       .pipe sourcemaps.write "./"

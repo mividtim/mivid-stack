@@ -31,4 +31,17 @@ In the future, I would like to prevent direct writes to the database from either
 
 ### Deployment
 
-Out of the box, this stack includes automated deployment to [Heroku](http://www.heroku.com).  The Heroku endpoint is defined near the top of the gulpfile, under "urls."  Pushing to your test Heroku server is done with simply "npm run heroku."  From there, set up a [pipeline](https://devcenter.heroku.com/articles/pipelines) to promote the application to production.
+Out of the box, this stack includes automated deployment to [Heroku](http://www.heroku.com).  The Heroku Git is defined near the top of the gulpfile.coffee, urls.herokuGit.  Pushing to your test Heroku server is done with simply "npm run heroku."  From there, set up a [pipeline](https://devcenter.heroku.com/articles/pipelines) to promote the application to production.
+
+To set up deployment for your own app, you'll need hosted RethinkDB - I use
+Compose.io.  This requires use of an SSH tunnel.  I procured a tunnel.py
+script on MIT license (included in src/heroku and deployed from Gulp)
+[here](https://github.com/fanout/leaderboard/blob/master/tunnel.py).
+
+First, edit the value of urls.herokuGit in gulpfile.coffee.  Then, assuming
+you've installed heroku-toolbelt,
+
+    heroku config:set DB_HOST=\{hostname of Compose.io or other RethinkDB host\}
+    heroku config:set DB_PORT=\{port of hosted database\}
+    heroku config:set DB_AUTH_KEY=\{Compose.io auth key, or whatever is set at your host\}
+    heroku.config:set DB_NAME=\{name of your database\}

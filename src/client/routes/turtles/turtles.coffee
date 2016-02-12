@@ -1,21 +1,24 @@
 _ = require "lodash"
+fs = require "fs"
 Redux = require "Redux"
-RethinkdbWebsocketClient = require("rethinkdb-websocket-client");
-r = RethinkdbWebsocketClient.rethinkdb;
+RethinkdbWebsocketClient = require "rethinkdb-websocket-client"
+r = RethinkdbWebsocketClient.rethinkdb
 tag = require "./turtles.tag"
 
 # In case you want bluebird, which is bundled with the rethinkdb driver
 #Promise = RethinkdbWebsocketClient.Promise;
 
-# TBD: Get this from a global config file (package.json?)
+port = window.location.port
+if port?.length < 1
+  port = if window.location.protocol is "https:" then 443 else 80
 rethinkOptions =
-  host: "localhost",       # hostname of the websocket server
-  port: 8000,              # port number of the websocket server
-  path: "/api?userId=ace32b45-7826-4797-9e1a-2eb88264b737&authToken=asdf", # HTTP path to websocket route
-  wsProtocols: ["binary"], # sub-protocols for websocket, required for websockify
-  secure: false,           # set true to use secure TLS websockets
-  db: "test",              # default database, passed to rethinkdb.connect
-  simulatedLatencyMs: 100, # wait 100ms before sending each message (optional)
+  host: window.location.hostname
+  port: port
+  path: "/api?userId=ace32b45-7826-4797-9e1a-2eb88264b737&authToken=asdf"
+  wsProtocols: ["binary"]
+  secure: window.location.protocol is "https:"
+  db: "test"
+  #simulatedLatencyMs: 100 # wait 100ms before sending each message (optional)
 
 # Redux Actions
 
@@ -26,21 +29,22 @@ ERROR_TURTLES = "ERROR_TURTLES"
 actions =
   getAll: ->
     (dispatch) ->
-      dispatch type: REQUEST_TURTLES
-      try
-        RethinkdbWebsocketClient.connect(rethinkOptions).then (conn) ->
-          r.table("turtles").filter(herdId: 'awesomesauce').run conn, (err, cursor) ->
-            if err
-              dispatch {type: ERROR_TURTLES, err}
-            else
-              cursor.toArray (err, results) ->
-                console.log results
-                if err
-                  dispatch {type: ERROR_TURTLES, err}
-                else
-                  dispatch type: RECEIVE_TURTLES, turtles: results
-      catch err
-        dispatch type: RECEIVE_TURTLES, turtles: results
+      fs.readFile "#{__dirname}/../../../static/ca.cert", (err, caCert) ->
+        rethinkOptions.ssl = ca: caCert
+        dispatch type: REQUEST_TURTLES
+        try
+          RethinkdbWebsocketClient.connect(rethinkOptions).then (conn) ->
+            r.table("turtles").filter(herdId: 'awesomesauce').run conn, (err, cursor) ->
+              if err
+                dispatch {type: ERROR_TURTLES, err}
+              else
+                cursor.toArray (err, results) ->
+                  if err
+                    dispatch {type: ERROR_TURTLES, err}
+                  else
+                    dispatch type: RECEIVE_TURTLES, turtles: results
+        catch err
+          dispatch type: RECEIVE_TURTLES, turtles: results
   set: (turtles) ->
     type: RECEIVE_TURTLES
     turtles

@@ -16,7 +16,7 @@ reducer = (state = "", action) ->
 startRouter = (store) ->
   riot.route (route) ->
     store.dispatch actions.route route
-  riot.route.start(true)
+  riot.route.start()
   currentTag = null
   store.subscribe ->
     state = store.getState()
