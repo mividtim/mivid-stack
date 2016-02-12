@@ -12,6 +12,9 @@ launchServer = (caCert) ->
     dbHost: process.env.DB_HOST or "localhost"
     dbPort: process.env.DB_PORT or 28015
     dbAuthKey: process.env.DB_AUTH_KEY
+    dbSecure: process.env.DB_SECURE is "yes"
+  if caCert?
+    options.dbCACert = caCert
 
   rethinkOptions =
     host: options.dbHost

@@ -28,7 +28,7 @@ paths =
   clientStatic: "./src/static/**/*"
   serviceBase: "./src/service"
   herokuStatic: ["./package.json", "./src/heroku/**/*"]
-  herokuDestination: "./heroku"
+  herokuDestination: "./herokuBuild"
 
 Object.assign paths,
   allDestination: "#{paths.destination}/**/*"
