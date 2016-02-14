@@ -2,6 +2,7 @@ riot = require "riot"
 actions = require "./actions.coffee"
 
 module.exports = (store) ->
+
   ReduxMixin =
     init: ->
       @store = store
@@ -15,4 +16,5 @@ module.exports = (store) ->
         @unsubscribe = @store.subscribe => riot.mount @root
       @on "unmount", ->
         @unsubscribe()
+
   riot.mixin "subscribe", SubscribeMixin

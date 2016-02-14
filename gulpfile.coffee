@@ -59,8 +59,8 @@ exec = (command, args, cwd = ".") ->
       process.stdout.write "#{command} exited with code #{code}\n"
 
 clean = gulp.series(
-	  -> del "build"
-	  -> del "heroku"
+	  -> del paths.destination
+	  -> del paths.herokuDestination
 	)
 
 buildServiceScripts = ->

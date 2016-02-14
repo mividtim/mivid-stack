@@ -1,6 +1,5 @@
 _ = require "lodash"
 Redux = require "Redux"
-tag = require "./todos.tag"
 
 ADD_TODO = "ADD_TODO"
 TOGGLE_TODO = "TOGGLE_TODO"
@@ -55,5 +54,4 @@ reducer = Redux.combineReducers {
 module.exports = {
   actions
   reducer
-  tag
 }

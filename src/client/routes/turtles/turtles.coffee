@@ -3,7 +3,6 @@ fs = require "fs"
 Redux = require "Redux"
 RethinkdbWebsocketClient = require "rethinkdb-websocket-client"
 r = RethinkdbWebsocketClient.rethinkdb
-tag = require "./turtles.tag"
 
 # In case you want bluebird, which is bundled with the rethinkdb driver
 #Promise = RethinkdbWebsocketClient.Promise;
@@ -14,10 +13,10 @@ if port?.length < 1
 rethinkOptions =
   host: window.location.hostname
   port: port
-  path: "/api?userId=ace32b45-7826-4797-9e1a-2eb88264b737&authToken=asdf"
-  wsProtocols: ["binary"]
-  secure: window.location.protocol is "https:"
   db: "test"
+  path: "/api?userId=ace32b45-7826-4797-9e1a-2eb88264b737&authToken=asdf"
+  secure: window.location.protocol is "https:"
+  wsProtocols: ["binary"]
   #simulatedLatencyMs: 100 # wait 100ms before sending each message (optional)
 
 # Redux Actions
@@ -30,6 +29,8 @@ actions =
   getAll: ->
     (dispatch) ->
       fs.readFile "#{__dirname}/../../../static/ca.cert", (err, caCert) ->
+        if err
+          dispatch {type: ERROR_TURTLES, err}
         rethinkOptions.ssl = ca: caCert
         dispatch type: REQUEST_TURTLES
         try
@@ -44,7 +45,7 @@ actions =
                   else
                     dispatch type: RECEIVE_TURTLES, turtles: results
         catch err
-          dispatch type: RECEIVE_TURTLES, turtles: results
+          dispatch {type: ERROR_TURTLES, err}
   set: (turtles) ->
     type: RECEIVE_TURTLES
     turtles
@@ -79,5 +80,4 @@ reducer = (state = initialState, action) ->
 module.exports = {
   actions
   reducer
-  tag
 }

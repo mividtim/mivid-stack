@@ -1,5 +1,4 @@
 Redux = require "Redux"
-tag = require "./home.tag"
 
 TOGGLE_DETAILS = "TOGGLE_DETAILS"
 
@@ -20,5 +19,4 @@ reducer = Redux.combineReducers {
 module.exports = {
   actions
   reducer
-  tag
 }

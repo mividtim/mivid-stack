@@ -28,4 +28,4 @@ tmp/
 # Build output folders
 build/
 herokuBuild/
-
+composeio.sh
