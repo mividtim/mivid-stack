@@ -1,8 +1,8 @@
-brfs = require "brfs"
 browserify = require "browserify"
 buffer = require "vinyl-buffer"
 iced = require "gulp-iced"
 del = require "del"
+fs = require "fs"
 globify = require "require-globify"
 gulp = require "gulp"
 icsify = require "icsify"
@@ -25,7 +25,6 @@ port = process.env.PORT || 8000
 paths =
   destination: "./build"
   clientBase: "./src/client"
-  clientStatic: "./src/static/**/*"
   serviceBase: "./src/service"
   herokuStatic: ["./package.json", "./src/heroku/**/*"]
   herokuDestination: "./herokuBuild"
@@ -34,14 +33,16 @@ Object.assign paths,
   allDestination: "#{paths.destination}/**/*"
   clientDestination: "#{paths.destination}/client"
   clientEntry: "#{paths.clientBase}/index.coffee"
+  clientStatic: "#{paths.clientBase}/static/**/*"
   clientStyles: "#{paths.clientBase}/**/*.styl"
   clientTemplates: "#{paths.clientBase}/**/*.jade"
   serviceDestination: paths.destination
+  serviceStatic: "#{paths.serviceBase}/static/**/*"
   serviceScripts: "#{paths.serviceBase}/**/*.coffee"
   serviceEntry: "#{paths.destination}/app.js"
 
 urls =
-  appEntry: "http://localhost:#{port}"
+  appEntry: "http#{if process.env.EXPRESS_HTTPS is "yes" then "s" else ""}://localhost:#{port}"
   herokuGit: "https://git.heroku.com/mivid-stack.git"
 
 browserifyOpts =
@@ -58,10 +59,15 @@ exec = (command, args, cwd = ".") ->
     if code isnt 0
       process.stdout.write "#{command} exited with code #{code}\n"
 
-clean = gulp.series(
+clean = gulp.parallel(
 	  -> del paths.destination
 	  -> del paths.herokuDestination
 	)
+
+copyServiceStatic = ->
+  gulp.src paths.serviceStatic
+    .pipe gulp.dest paths.serviceDestination
+    .pipe livereload()
 
 buildServiceScripts = ->
   gulp.src paths.serviceScripts
@@ -70,7 +76,7 @@ buildServiceScripts = ->
     .pipe sourcemaps.write "."
     .pipe gulp.dest paths.serviceDestination
 
-buildService = -> buildServiceScripts()
+buildService = gulp.parallel copyServiceStatic, buildServiceScripts
 
 copyClientStatic = ->
   gulp.src paths.clientStatic
@@ -90,7 +96,6 @@ buildClientScripts = (cb, watch = no) ->
     type: "coffeescript"
     style: "stylus"
   bundler.transform globify
-  bundler.transform brfs
   if watch
     bundler.on "update", ->
       bundle()
@@ -100,8 +105,6 @@ buildClientScripts = (cb, watch = no) ->
       .on "error", util.log.bind util, "Browserify Error"
       .pipe source "index.js"
       .pipe buffer()
-      .pipe sourcemaps.init loadMaps: yes
-      .pipe sourcemaps.write "./"
       .pipe gulp.dest paths.clientDestination
       .pipe livereload()
   bundle()
@@ -118,7 +121,7 @@ buildClientTemplates = ->
   gulp.src paths.clientTemplates
     .pipe sourcemaps.init loadMaps: yes
     .pipe jade pretty: yes
-    .pipe inject.append "<script>document.write('<script src=\"http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1\"></' + 'script>')</script>"
+    .pipe inject.append "<script>document.write('<script src=\"http#{if process.env.EXPRESS_HTTPS then "s" else ""}://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1\"></' + 'script>')</script>"
     .pipe sourcemaps.write "."
     .pipe gulp.dest paths.clientDestination
     .pipe livereload()
@@ -145,10 +148,11 @@ rebuild = gulp.series clean, build
 watchClientScripts = -> buildClientScripts null, yes
 
 watchOthers = ->
+  gulp.watch paths.serviceStatic, copyServiceStatic
   gulp.watch paths.serviceScripts, buildServiceScripts
+  gulp.watch paths.clientStatic, copyClientStatic
   gulp.watch paths.clientStyles, buildClientStyles
   gulp.watch paths.clientTemplates, buildClientTemplates
-  gulp.watch paths.clientStatic, copyClientStatic
 
 watch = gulp.parallel watchClientScripts, watchOthers
 
@@ -159,7 +163,15 @@ monitor = ->
         .pipe notify "Reloading page..."
         .pipe livereload()
 
-liveReload = -> livereload.listen()
+liveReload = ->
+  options = {}
+  if process.env.EXPRESS_HTTPS
+    options =
+      key: fs.readFileSync "#{__dirname}/src/service/static/server.key"
+      cert: fs.readFileSync "#{__dirname}/src/service/static/server.crt"
+      requestCert: no
+      rejectUnauthorized: no
+  livereload.listen options
 
 open = -> exec "open", [urls.appEntry]
 

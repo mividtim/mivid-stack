@@ -1,23 +1,19 @@
 _ = require "lodash"
-fs = require "fs"
+#fs = require "fs"
 Redux = require "Redux"
 RethinkdbWebsocketClient = require "rethinkdb-websocket-client"
 r = RethinkdbWebsocketClient.rethinkdb
 
-# In case you want bluebird, which is bundled with the rethinkdb driver
-#Promise = RethinkdbWebsocketClient.Promise;
-
+secure = window.location.protocol is "https:"
 port = window.location.port
-if port?.length < 1
-  port = if window.location.protocol is "https:" then 443 else 80
+if port.length < 1 then port = if secure then 443 else 80
 rethinkOptions =
   host: window.location.hostname
   port: port
   db: "test"
+  secure: secure
   path: "/api?userId=ace32b45-7826-4797-9e1a-2eb88264b737&authToken=asdf"
-  secure: window.location.protocol is "https:"
   wsProtocols: ["binary"]
-  #simulatedLatencyMs: 100 # wait 100ms before sending each message (optional)
 
 # Redux Actions
 
@@ -28,24 +24,22 @@ ERROR_TURTLES = "ERROR_TURTLES"
 actions =
   getAll: ->
     (dispatch) ->
-      fs.readFile "#{__dirname}/../../../static/ca.cert", (err, caCert) ->
-        if err
-          dispatch {type: ERROR_TURTLES, err}
-        rethinkOptions.ssl = ca: caCert
-        dispatch type: REQUEST_TURTLES
-        try
-          RethinkdbWebsocketClient.connect(rethinkOptions).then (conn) ->
-            r.table("turtles").filter(herdId: 'awesomesauce').run conn, (err, cursor) ->
-              if err
-                dispatch {type: ERROR_TURTLES, err}
-              else
-                cursor.toArray (err, results) ->
-                  if err
-                    dispatch {type: ERROR_TURTLES, err}
-                  else
-                    dispatch type: RECEIVE_TURTLES, turtles: results
-        catch err
-          dispatch {type: ERROR_TURTLES, err}
+      if err
+        dispatch {type: ERROR_TURTLES, err}
+      dispatch type: REQUEST_TURTLES
+      try
+        RethinkdbWebsocketClient.connect(rethinkOptions).then (conn) ->
+          r.table("turtles").filter(herdId: 'awesomesauce').run conn, (err, cursor) ->
+            if err
+              dispatch {type: ERROR_TURTLES, err}
+            else
+              cursor.toArray (err, results) ->
+                if err
+                  dispatch {type: ERROR_TURTLES, err}
+                else
+                  dispatch type: RECEIVE_TURTLES, turtles: results
+      catch err
+        dispatch {type: ERROR_TURTLES, err}
   set: (turtles) ->
     type: RECEIVE_TURTLES
     turtles
